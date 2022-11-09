@@ -56,31 +56,44 @@ class input_info:
                    scatlib='optical_dataset'):
         info ='size_equ cs\n'
         info += 'rH %d\n' % rel_humidity
-        info+= 'water_refrac_file "%s"\n' % water_refrac_file
+        info+= 'water_refrac_file "%s"\n' % opj(self.dataroot,water_refrac_file)
         info+= 'wavelength %s\n' % wavelength
         info += 'output theta_file "%s"\n' % opj(self.dataroot,theta_file)
         info += 'scatlib "%s"\n' % opj(self.dataroot,scatlib)
         info += 'output netcdf "%s" reff\n' % self.output_file
         return info
 
-
+rhs=[0,50,70,80,90,95,98,99]
 for name,c in components.iterrows():
     print(name)
-    info = input_info(output_file= opj('./scatmat',name+'rh0_scatmat.nc'),dataroot=datapath)
 
-    if c['shape'] == 'sphere':
-        input = info.write_mode(1, c.rmed_N, c.sigma, shape='sphere')
-    elif c['shape'] == 'spheroid':
-        input += info.write_mode(2,c.rmed_N, c.sigma,shape='spheroid distr_file "'+opj(datapath,'ar_kandler')+'"')
-    input += info.write_info()
+    kappa = c['kappa']
+    for rh in rhs:
+        ofile=opj('./scatmat', name + '_rh{:d}_scatmat.nc'.format(rh))
+        if os.path.exists(ofile):
+            continue
+
+        info = input_info(output_file=ofile, dataroot=datapath)
+
+        # if hygrophobic compute for rh=0 only
+        if kappa==0 and rh > 0:
+            continue
+
+        if c['shape'] == 'sphere':
+            input = info.write_mode(1, c.rmed_N, c.sigma, shape='sphere',kappa=kappa, r_max =  c['rmax'])
+        elif c['shape'] == 'spheroid':
+            input = info.write_mode(1,c.rmed_N, c.sigma,shape='spheroid distr_file "'+opj(datapath,'ar_kandler')+'"',kappa=kappa, r_max =  c['rmax'])
 
 
-    with open(input_file, 'w') as w:
-        w.write(input)
+        input += info.write_info(rel_humidity=rh)
 
-    # call mopsmap
-    input_file='/media/harmel/vol1/Dropbox/work/git/vrtc/mopsmap_tbx/input.txt'
 
-    p = subprocess.Popen(mopsmap_exe+' '+ input_file, stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
-                         close_fds=True,shell=True)
-    p.communicate()
+        with open(input_file, 'w') as w:
+            w.write(input)
+
+        # call mopsmap
+        input_file='/media/harmel/vol1/Dropbox/work/git/vrtc/mopsmap_tbx/input.txt'
+
+        p = subprocess.Popen(mopsmap_exe+' '+ input_file, stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
+                             close_fds=True,shell=True)
+        p.communicate()
