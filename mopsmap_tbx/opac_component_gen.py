@@ -22,7 +22,6 @@ mopsmap_dir = '/sat_data/vrtc/aerosol/mopsmap'
 mopsmap_exe = opj(mopsmap_dir, 'mopsmap')
 components = pd.read_csv('./data/opac_aerosol_components.csv', skiprows=1, index_col=[1])
 components['logS'] = np.log(components.sigma)
-opac = pd.read_csv('./data/opac_aerosol_types.csv', index_col=[0])
 
 datapath = opj(mopsmap_dir, 'data')
 
@@ -66,57 +65,42 @@ class input_info:
         return info
 
 
-xr_components = components.to_xarray()
 rhs = [0, 50, 70, 80, 90, 95, 98, 99]
-for rh in rhs:
-    rh_num = rh / 100
-    for name, opac_ in opac.iterrows():
-        print(name)
-        ofile = opj('./scatmat', 'types', name + '_rh{:d}_scatmat.nc'.format(rh))
+for name, c in components.iterrows():
+    print(name)
 
-        if os.path.exists(ofile):
-            continue
-        print(ofile)
-        imode = 0
-        input = ""
-        info = input_info(output_file=ofile, dataroot=datapath)
-        # normalization of particle number
-        norm = np.sum(opac_[1:])
-        for component, Ni in opac_[1:].iteritems():
-            if Ni == 0:
+    kappa = c['kappa']
+    for rh in rhs:
+
+        ofile = opj('./scatmat', 'components', name + '_rh{:d}_scatmat.nc'.format(rh))
+        for rmax in range(c['rmax'],10,-1):
+            print(rmax)
+            if os.path.exists(ofile):
+                break
+
+            info = input_info(output_file=ofile, dataroot=datapath)
+
+            # if hygrophobic compute for rh=0 only
+            if kappa == 0 and rh > 0:
                 continue
-            rmax = c.rmax
-            Ni_norm = Ni / norm
-            imode += 1
-            c = xr_components.sel(name=component)
-            c = c.to_pandas()
-            rmax = c['rmax']
-            kappa = c['kappa']
-            growth = (1 + kappa * rh_num / (1 - rh_num))**(1./3)
-            xparam = 2 * np.pi * rmax / 0.4 * growth
-            # fix for the incomplete mopsmap x-parameter (upper value around 1010)
-            if xparam > 1010:
-                rmax = 1010 *0.4 / (2 * np.pi  * growth)
-            print(component, Ni, kappa, xparam,rmax)
-
-
 
             if c['shape'] == 'sphere':
-                input += info.write_mode(imode, c.rmed_N, c.sigma, shape='sphere', kappa=kappa, r_max=rmax,
-                                         refra_file=c.refrac_index_file, Nparticle=Ni_norm)
+                input = info.write_mode(1, c.rmed_N, c.sigma, shape='sphere', kappa=kappa, r_max=rmax,
+                                        refra_file=c.refrac_index_file)
             elif c['shape'] == 'spheroid':
-                input += info.write_mode(imode, c.rmed_N, c.sigma,
-                                         shape='spheroid distr_file "' + opj(datapath, 'ar_kandler') + '"', kappa=kappa,
-                                         r_max=rmax, refra_file=c.refrac_index_file, Nparticle=Ni_norm)
+                input = info.write_mode(1, c.rmed_N, c.sigma,
+                                        shape='spheroid distr_file "' + opj(datapath, 'ar_kandler') + '"', kappa=kappa,
+                                        r_max=rmax, refra_file=c.refrac_index_file)
 
-        input_file = '/media/harmel/vol1/Dropbox/work/git/vrtc/mopsmap_tbx/input.txt'
-        input += info.write_info(wavelength='range 0.4 2.4 0.05', rel_humidity=rh)
+            input += info.write_info(rel_humidity=rh)
 
-        with open(input_file, 'w') as w:
-            w.write(input)
+            # call mopsmap
+            input_file = '/media/harmel/vol1/Dropbox/work/git/vrtc/mopsmap_tbx/input.txt'
+            with open(input_file, 'w') as w:
+                w.write(input)
 
-        # call mopsmap
-
-        p = subprocess.Popen(mopsmap_exe + ' ' + input_file, stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
-                             close_fds=True, shell=True)
-        res = p.communicate()
+            p = subprocess.Popen(mopsmap_exe + ' ' + input_file, stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
+                                 close_fds=True, shell=True)
+            res=p.communicate()
+            if not 'Error' in str(res[0]):
+                break

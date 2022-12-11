@@ -1,0 +1,8 @@
+mode 1 size log_normal 1.0 2.7183 1. 0.001000 60.000000
+mode 1 refrac 1.1 0.000
+mode 1 shape sphere
+size_equ cs
+wavelength range 0.4 0.8 0.05
+scatlib "/sat_data/vrtc/aerosol/mopsmap/data/optical_dataset"
+output netcdf "./input_test.nc" reff
+output integrated

@@ -1,75 +1,11 @@
-name,Aerosol types,Components,Ni (cm-3)
-COCL,Continental clean,"total
-water soluble
-insoluble","2600
-2600
-0.15"
-COAV,Continental averaged,"total
-water soluble
-insoluble
-soot","15300
-7000
-0.4
-8300"
-COPO,Continental polluted,"total
-water soluble
-insoluble
-soot","50000
-15700
-0.6
-34300"
-URBA,Urban,"total
-water soluble
-insoluble
-soot","158000
-28000
-1.5
-130000"
-DESE,Desert,"total
-water soluble
-mineral (nuc.)
-mineral (acc.)
-mineral (coa.)","2300
-2000
-269.5
-30.5
-0.142"
-MACL,Maritime clean,"total
-water soluble
-see salt (acc.)
-see salt (coa.)","1520
-1500
-20
-3.2 10-3"
-MAPO,Maritime polluted,"total
-water soluble
-see salt (acc.)
-see salt (coa.)
-soot","9000
-3800
-20
-3.2 10-3
-5180"
-MATR,Maritime tropical,"total
-water soluble
-see salt (acc.)
-see salt (coa.)","600
-590
-10
-1.3 10-3"
-ARCT,Arctic,"total
-water soluble
-insoluble
-see salt (acc.)
-soot","6600
-1300
-0.01
-1.9
-5300"
-ANTA,Antarctic,"total
-sulfate
-sea salt (acc.)
-mineral (tra.)","43
-42.9
-0.047
-0.0053"
+name,Aerosol types,INSO,WASO,SOOT,SSAM,SSCM,MINM,MIAM,MICM,MITR,SUSO
+COCL,Continental clean,0.15,2600.,0.,0.,0.,0.,0.,0.,0.,0.
+COAV,Continental averaged,0.4,7000.,8300.,0.,0.,0.,0.,0.,0.,0.
+COPO,Continental polluted,0.6,15700.,34300.,0.,0.,0.,0.,0.,0.,0.
+URBA,Urban,1.5,28000.,130000.,0.,0.,0.,0.,0.,0.,0.
+DESE,Desert,0.,2000.,0.,0.,0.,269.5,30.5,0.142,0.,0.
+MACL,Maritime clean,0.,1500.,0.,20.,3.20E-03,0.,0.,0.,0.,0.
+MAPO,Maritime polluted,0.,3800.,5180.,20.,3.20E-03,0.,0.,0.,0.,0.
+MATR,Maritime tropical,0.,590.,0.,10.,1.30E-03,0.,0.,0.,0.,0.
+ARCT,Arctic,0.01,1300.,5300.,1.9,0.,0.,0.,0.,0.,0.
+ANTA,Antarctic,0.,0.,0.,0.047,0.,0.,0.,0.,0.0053,42.9

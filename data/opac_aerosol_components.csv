@@ -5,14 +5,14 @@ micrometers","rmax
 micrometers","ρ
 g cm-3","M*
 (milligram m-3)/(part. cm-3)",Dependence to relative humidity,shape for mopsmap
-Component,name,sigma,rmed_N,rmed_V,rmin,rmax,density,Mstar,shape,kappa
-Insoluble,INSO,2.51,0.471,6,0.005,20,2,23.7,sphere,0
-Water-soluble,WASO,2.24,0.0212,0.15,0.005,20,1.8,0.00134,sphere,0.27
-Soot,SOOT,2,0.0118,0.05,0.005,20,1,5.99E-05,sphere,0
-Sea salt (acc.mode),SSAM,2.03,0.209,0.94,0.005,20,2.2,0.802,spheroid,1.12
-Sea salt (coa. mode),SSCM,2.03,1.75,7.9,0.005,60,2.2,224,spheroid,1.12
-Mineral (nuc. mode),MINM,1.95,0.07,0.27,0.005,20,2.6,0.0278,spheroid,0.1
-Mineral (acc. mode),MIAM,2,0.39,1.6,0.005,20,2.6,5.53,spheroid,0.1
-Mineral (coa. mode),MICM,2.15,1.9,11,0.005,60,2.6,324,spheroid,0.1
-Mineral-transported,MITR,2.2,0.5,3,0.02,5,2.5,15.9,spheroid,0.05
-Sulfate droplets,SUSO,2.03,0.0695,0.31,0.005,20,1.7,0.0228,sphere,0.53
+Component,name,sigma,rmed_N,rmed_V,rmin,rmax,density,Mstar,shape,kappa,refrac_index_file
+Insoluble,INSO,2.51,0.471,6,0.005,20,2,23.7,sphere,0,refr_insoluble
+Water-soluble,WASO,2.24,0.0212,0.15,0.005,20,1.8,0.00134,sphere,0.27,refr_water_soluble
+Soot,SOOT,2,0.0118,0.05,0.005,20,1,5.99E-05,sphere,0,refr_soot
+Sea salt (acc.mode),SSAM,2.03,0.209,0.94,0.005,20,2.2,0.802,spheroid,1.12,refr_seasalt
+Sea salt (coa. mode),SSCM,2.03,1.75,7.9,0.005,60,2.2,224,spheroid,1.12,refr_seasalt
+Mineral (nuc. mode),MINM,1.95,0.07,0.27,0.005,20,2.6,0.0278,spheroid,0.1,refr_mineral
+Mineral (acc. mode),MIAM,2,0.39,1.6,0.005,20,2.6,5.53,spheroid,0.1,refr_mineral
+Mineral (coa. mode),MICM,2.15,1.9,11,0.005,60,2.6,324,spheroid,0.1,refr_mineral
+Mineral-transported,MITR,2.2,0.5,3,0.02,5,2.5,15.9,spheroid,0.05,refr_mineral
+Sulfate droplets,SUSO,2.03,0.0695,0.31,0.005,20,1.7,0.0228,sphere,0.53,refr_sulfate

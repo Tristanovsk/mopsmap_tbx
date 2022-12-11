@@ -25,7 +25,7 @@ file= "test.nc"
 # load data
 #------------------------------------
 scatmat = []
-for file in glob.glob('./scatmat/*.nc'):
+for file in glob.glob('./scatmat/types/*.nc'):
     print(file)
     name,rh = os.path.basename(file).replace('_scatmat.nc','').split('_')
     ds = xr.open_dataset(file)
@@ -52,17 +52,17 @@ sm.set_array([])
 
 
 #--------------------------
-# plot norm. radiance spectra
+# plot scattering matrix
 #--------------------------
 for name,ds_ in scamat.groupby('name'):
     for rh,ds in ds_.groupby('rh'):
         print(name,rh)
         ds = ds.squeeze()
         fig, axs = plt.subplots(ncols=2, nrows=2, figsize=(20, 12), sharex=True)
-        fig.subplots_adjust(bottom=0.15, top=0.925, left=0.1, right=0.975,
+        fig.subplots_adjust(bottom=-0.05, top=0.925, left=0.07, right=0.975,
                             hspace=0.1, wspace=0.25)
         axs = axs.ravel()
-        for wl in ds.wl.values:
+        for wl in ds.wl.values[::2]:
               ds_ = ds.sel(wl=wl).squeeze()
               f11 = ds_.phase.isel(scamat=0)
               axs[0].plot(ds_.angle,ds_.phase.isel(scamat=0),color=cmap(norm(wl)))
@@ -81,7 +81,10 @@ for name,ds_ in scamat.groupby('name'):
         axs[2].set_ylabel('$F_{22}/F_{11}$')
         axs[3].set_ylabel('$F_{33}/F_{11}$')
         plt.suptitle(name+' '+rh)
-        plt.savefig(opj('./fig/OPAC_components',name+'_'+rh+'_scatmat.png'),dpi=300)
+
+        cb = fig.colorbar(sm, ax=axs, shrink=0.6, aspect=30, pad=0.1, location='bottom')
+        cb.set_label('$Wavelength\ (\mu m)$', fontsize=22)
+        plt.savefig(opj('./fig/OPAC_types',name+'_'+rh+'_scatmat.png'),dpi=300)
         plt.close()
         plt.show()
 
@@ -90,30 +93,44 @@ for name,ds_ in scamat.groupby('name'):
 # plot Cext, SSA spectra
 #--------------------------
 
+colors = {'COAV': 'forestgreen', 'COPO': 'olivedrab', 'COCL': 'yellowgreen',
+          'DESE': 'darkgoldenrod', 'MACL': 'cornflowerblue', 'MAPO': 'mediumblue', 'URBA': 'dimgrey',
+          'ARCT': 'darkorchid', 'ANTA': 'palevioletred','MATR':'steelblue'}
+
 # Rel. humidity = 0
+suff=''
+#suff ='_norm'
 fig, axs = plt.subplots(ncols=3, nrows=1, figsize=(24, 6), sharex=True)
 fig.subplots_adjust(bottom=0.15, top=0.925, left=0.1, right=0.975,
                     hspace=0.1, wspace=0.25)
 axs = axs.ravel()
 
-for name,ds_ in scamat.groupby('name'):
-    for rh,ds in ds_.groupby('rh'):
+for name, ds_ in scamat.groupby('name'):
+    for rh, ds in ds_.groupby('rh'):
         if 'rh0' == ds['rh'].values:
             print(name)
             ds = ds.squeeze()
-            Cext_550 = ds.ext.interp(wl=0.550)
-            axs[0].plot(ds.wl,ds.ext/Cext_550,'o-',label=name)
-            axs[1].plot(ds.wl,ds.ext/Cext_550,'o-',label=name)
-            axs[2].plot(ds.wl,ds.ssa,'o-',label=name)
+            if suff == '_norm':
+                Cext_550 = ds.ext.interp(wl=0.550)
+            else:
+                Cext_550 = 1.
+            axs[0].plot(ds.wl, ds.ext / Cext_550, 'o-', color=colors[name], label=name)
+            axs[1].plot(ds.wl, ds.ext / Cext_550, 'o-', color=colors[name], label=name)
+            axs[2].plot(ds.wl, ds.ssa, 'o-', color=colors[name], label=name)
 for i in range(3):
     axs[i].set_xlabel('$Wavelength\ (\mu m)$')
     axs[i].legend(fontsize=11)
-axs[0].set_ylabel('$C_{ext}/C_{ext}(550nm)$')
-axs[1].set_ylabel('$C_{ext}/C_{ext}(550nm)$')
+if suff == '_norm':
+    ylabel='$C_{ext}/C_{ext}(550nm)$'
+else:
+    ylabel='$C_{ext}\ (\mu m^2)$'
+axs[0].set_ylabel(ylabel)
+axs[1].set_ylabel(ylabel)
+
 axs[1].semilogy()
 axs[2].set_ylabel('$ssa$')
 plt.tight_layout()
-plt.savefig(opj('./fig/OPAC_components','spectral_prop.png'),dpi=300)
+plt.savefig(opj('./fig/OPAC_types', 'spectral_prop'+suff+'.png'), dpi=300)
 #plt.close()
 plt.show()
 
@@ -128,8 +145,8 @@ norm = mpl.colors.Normalize(vmin=0, vmax=8)
 sm = mpl.cm.ScalarMappable(norm=norm, cmap=cmap)
 sm.set_array([])
 for name,ds_ in scamat.groupby('name'):
-    if name != 'MICM':
-        continue
+    # if name != 'MICM':
+    #     continue
     print(name)
     fig, axs = plt.subplots(ncols=3, nrows=1, figsize=(24, 6), sharex=True)
     fig.subplots_adjust(bottom=0.15, top=0.925, left=0.1, right=0.975,
@@ -138,6 +155,7 @@ for name,ds_ in scamat.groupby('name'):
     for irh,(rh,ds) in enumerate(ds_.groupby('rh')):
         rel_hum=(rh.replace('rh',''))+'%'
         ds = ds.squeeze()
+
         axs[0].plot(ds.wl,ds.ext,'o-',color=cmap(norm(irh)),label=rel_hum)
         axs[1].plot(ds.wl,ds.ext,'o-',color=cmap(norm(irh)),label=rel_hum)
         axs[2].plot(ds.wl,ds.ssa,'o-',color=cmap(norm(irh)),label=rel_hum)
@@ -150,6 +168,97 @@ for name,ds_ in scamat.groupby('name'):
     axs[2].set_ylabel('$ssa$')
     plt.suptitle(name)
     plt.tight_layout()
-    plt.savefig(opj('./fig/OPAC_components','spectral_prop'+name+'.png'),dpi=300)
+    plt.savefig(opj('./fig/OPAC_types','spectral_prop'+name+'.png'),dpi=300)
     plt.close()
     plt.show()
+
+
+#--------------------------
+# plot scattering matrix
+wl=.500
+scamat_ = scamat.sel(wl=wl)
+for name,ds in scamat_.groupby('name'):
+
+    print(name)
+    fig, axs = plt.subplots(ncols=2, nrows=2, figsize=(20, 12), sharex=True)
+    fig.subplots_adjust(bottom=0.15, top=0.925, left=0.1, right=0.975,
+                        hspace=0.1, wspace=0.25)
+    axs = axs.ravel()
+    for irh,(rh,ds_) in enumerate(ds.groupby('rh')):
+        print(rh)
+        rel_hum=(rh.replace('rh',''))+'%'
+        ds_ = ds_.squeeze()
+
+        f11 = ds_.phase.isel(scamat=0)
+        axs[0].plot(ds_.angle, ds_.phase.isel(scamat=0), color=cmap(norm(irh)),label=rel_hum)
+        # -F12/F11
+        axs[1].plot(ds_.angle, -ds_.phase.isel(scamat=1) / f11, color=cmap(norm(irh)),label=rel_hum)
+        # F22/F11
+        axs[2].plot(ds_.angle, ds_.phase.isel(scamat=4) / f11, color=cmap(norm(irh)),label=rel_hum)
+        # F33/F11
+        axs[3].plot(ds_.angle, ds_.phase.isel(scamat=2) / f11, color=cmap(norm(irh)),label=rel_hum)
+
+
+    for i in range(4):
+        axs[i].set_xlabel('$Scattering\ angle\ (deg)$')
+    axs[0].semilogy()
+    axs[0].legend(title='Rel. humidity',fontsize=11)
+    axs[0].set_ylabel('$F_{11}$')
+    axs[1].set_ylabel('$-F_{12}/F_{11}$')
+    axs[2].set_ylabel('$F_{22}/F_{11}$')
+    axs[3].set_ylabel('$F_{33}/F_{11}$')
+    plt.suptitle(name+' at '+str(wl*1000)+' nm')
+
+    plt.tight_layout()
+    plt.savefig(opj('./fig/OPAC_components','scatmat_'+name+'_'+str(int(wl*1000))+'nm.png'),dpi=300)
+    plt.close()
+    #plt.show()
+
+
+cmap = mpl.colors.LinearSegmentedColormap.from_list("",
+                                                    ['violet', "blue", 'lightskyblue',
+                                                     'gray', 'yellowgreen', 'forestgreen','gold','darkgoldenrod','darkred','black']).reversed()
+
+norm = mpl.colors.Normalize(vmin=0, vmax=9)
+sm = mpl.cm.ScalarMappable(norm=norm, cmap=cmap)
+sm.set_array([])
+fig, axs = plt.subplots(ncols=2, nrows=2, figsize=(20, 12), sharex=True)
+fig.subplots_adjust(bottom=0.15, top=0.925, left=0.1, right=0.975,
+                    hspace=0.1, wspace=0.25)
+axs = axs.ravel()
+rh='rh0'
+wl=0.900
+scamat_ = scamat.sel(wl=wl).where(scamat.rh==rh,drop=True)
+for itype,(name,ds) in enumerate(scamat_.groupby('name')):
+
+    print(name)
+
+    for irh,(rh,ds_) in enumerate(ds.groupby('rh')):
+        print(rh)
+        rel_hum=(rh.replace('rh',''))+'%'
+        ds_ = ds_.squeeze()
+
+        f11 = ds_.phase.isel(scamat=0)
+        axs[0].plot(ds_.angle, ds_.phase.isel(scamat=0), color=cmap(norm(itype)),label=name)
+        # -F12/F11
+        axs[1].plot(ds_.angle, -ds_.phase.isel(scamat=1) / f11, color=cmap(norm(itype)),label=name)
+        # F22/F11
+        axs[2].plot(ds_.angle, ds_.phase.isel(scamat=4) / f11, color=cmap(norm(itype)),label=name)
+        # F33/F11
+        axs[3].plot(ds_.angle, ds_.phase.isel(scamat=2) / f11, color=cmap(norm(itype)),label=name)
+
+
+for i in range(4):
+    axs[i].set_xlabel('$Scattering\ angle\ (deg)$')
+axs[0].semilogy()
+axs[0].legend(title='OPAC types',fontsize=11)
+axs[0].set_ylabel('$F_{11}$')
+axs[1].set_ylabel('$-F_{12}/F_{11}$')
+axs[2].set_ylabel('$F_{22}/F_{11}$')
+axs[3].set_ylabel('$F_{33}/F_{11}$')
+plt.suptitle('Rel. humidity '+rel_hum+' at '+str(wl*1000)+' nm')
+
+plt.tight_layout()
+plt.savefig(opj('./fig/OPAC_types','scatmat_all_'+rh+'_'+str(int(wl*1000))+'nm.png'),dpi=300)
+plt.close()
+#plt.show()
