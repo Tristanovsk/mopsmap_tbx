@@ -28,13 +28,16 @@ datapath = opj(mopsmap_dir, 'data')
 
 input_file = './input.txt'
 
+wl_min=0.35
+wl_max=2.6
 
 # -- Write scattering angle file
 # ang = np.concatenate([[0,0.001,0.005,0.01,0.05,0.1,0.2,0.3,0.4],np.arange(0.5,180.1,0.5)])
 # pd.DataFrame(ang).to_csv(opj(datapath,'scat_angle_grid.txt'),index=False)
 
 class input_info:
-    def __init__(self, output_file='test.nc', dataroot=''):
+    def __init__(self,output_file='test.nc', dataroot=''):
+
         self.dataroot = dataroot
         self.output_file = output_file
 
@@ -53,7 +56,7 @@ class input_info:
     def write_info(self,
                    rel_humidity=0,
                    water_refrac_file="refr_water_segelstein",
-                   wavelength='range 0.4 2.4 0.1',
+                   wavelength='range 0.35 2.5 0.05',
                    theta_file='scat_angle_grid.txt',
                    scatlib='optical_dataset'):
         info = 'size_equ cs\n'
@@ -74,18 +77,19 @@ for rh in rhs:
         print(name)
         ofile = opj('./scatmat', 'types', name + '_rh{:d}_scatmat.nc'.format(rh))
 
-        if os.path.exists(ofile):
-            continue
+        #if os.path.exists(ofile):
+        #    continue
         print(ofile)
         imode = 0
         input = ""
         info = input_info(output_file=ofile, dataroot=datapath)
         # normalization of particle number
         norm = np.sum(opac_[1:])
-        for component, Ni in opac_[1:].iteritems():
+        for component, Ni in opac_[1:].items():
             if Ni == 0:
                 continue
-            rmax = c.rmax
+
+
             Ni_norm = Ni / norm
             imode += 1
             c = xr_components.sel(name=component)
@@ -93,10 +97,10 @@ for rh in rhs:
             rmax = c['rmax']
             kappa = c['kappa']
             growth = (1 + kappa * rh_num / (1 - rh_num))**(1./3)
-            xparam = 2 * np.pi * rmax / 0.4 * growth
+            xparam = 2 * np.pi * rmax / wl_min * growth
             # fix for the incomplete mopsmap x-parameter (upper value around 1010)
             if xparam > 1010:
-                rmax = 1010 *0.4 / (2 * np.pi  * growth)
+                rmax = 1010 *wl_min / (2 * np.pi  * growth)
             print(component, Ni, kappa, xparam,rmax)
 
 
@@ -110,7 +114,7 @@ for rh in rhs:
                                          r_max=rmax, refra_file=c.refrac_index_file, Nparticle=Ni_norm)
 
         input_file = '/media/harmel/vol1/Dropbox/work/git/vrtc/mopsmap_tbx/input.txt'
-        input += info.write_info(wavelength='range 0.4 2.4 0.05', rel_humidity=rh)
+        input += info.write_info(wavelength='range {:.3f} {:.3f} 0.05'.format(wl_min,wl_max), rel_humidity=rh)
 
         with open(input_file, 'w') as w:
             w.write(input)

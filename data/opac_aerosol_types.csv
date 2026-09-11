@@ -9,3 +9,5 @@ MAPO,Maritime polluted,0.,3800.,5180.,20.,3.20E-03,0.,0.,0.,0.,0.
 MATR,Maritime tropical,0.,590.,0.,10.,1.30E-03,0.,0.,0.,0.,0.
 ARCT,Arctic,0.01,1300.,5300.,1.9,0.,0.,0.,0.,0.,0.
 ANTA,Antarctic,0.,0.,0.,0.047,0.,0.,0.,0.,0.0053,42.9
+WASO,Fine soluble mode,0.,7000.,0.,0.,0.,0.,0.,0.,0.,0.
+SUSO,Fine sulfate soluble, 0.,0.,0.,0.,0.,0.,0.,0.,0.,1000.

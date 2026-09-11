@@ -23,7 +23,8 @@ components = pd.read_csv('./data/opac_aerosol_components.csv', skiprows=1, index
 components['logS'] = np.log(components.sigma)
 refrac_dir = './data/refrac_index'
 
-materials = []
+materials = ['insoluble','mineral','soot',
+          'sulfate','water_segelstein','water_soluble']
 
 colors = {'insoluble':'olivedrab','mineral':'darkgoldenrod','soot':'dimgrey',
           'sulfate':'darkorchid','water_segelstein':'mediumblue','water_soluble':'cornflowerblue'}
@@ -41,6 +42,8 @@ for material in materials:
     file = opj(refrac_dir,'refr_'+material)
     print(file)
     refrac = pd.read_csv(file,sep='\s+',names=['wl','mr','mi'],index_col=0).to_xarray()
+    print(material,float(refrac.mr.interp(wl=0.5)),float(refrac.mi.interp(wl=0.5)))
+
     color=colors[material]
     marker='o'
     if material == 'water_segelstein':
