@@ -12,7 +12,7 @@ Check notebooks for basic examples. You could be able to reproduce massive compu
 
  ![...](fig/OPAC_components/MICM_rh0_scatmat.png)
  ![...](fig/OPAC_components/MITR_rh0_scatmat.png)
- ![...](fig/OPAC_components/WASO_rh0_scatmat.png)
+ ![...](fig/OPAC_components/scatmat_WASO_500nm.png)
 
 
 
