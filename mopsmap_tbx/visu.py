@@ -32,7 +32,7 @@ for file in glob.glob('./scatmat/types/*.nc'):
     # reset dim and coords for practical use
     ds = ds.rename({'wavelen':'wl'}).rename({'nlam':'wl','nphamat':'scamat','nthetamax':'angle'}).set_coords(['wl'])
     scaang = ds.theta.isel(wl=0,scamat=0).squeeze().values
-    ds = ds.assign_coords({'angle':scaang}).drop('theta')
+    ds = ds.assign_coords({'angle':scaang}).drop_vars('theta')
     ds['name']=name
     ds['rh']=rh
     scatmat.append(ds)
@@ -74,7 +74,7 @@ for name,ds_ in scamat.groupby('name'):
               axs[3].plot(ds_.angle,ds_.phase.isel(scamat=2)/f11,color=cmap(norm(wl)))
 
         for i in range(4):
-            axs[i].set_xlabel('$Scattering\ angle\ (deg)$')
+            axs[i].set_xlabel(r'$Scattering\ angle\ (deg)$')
         axs[0].semilogy()
         axs[0].set_ylabel('$F_{11}$')
         axs[1].set_ylabel('$-F_{12}/F_{11}$')
@@ -83,7 +83,7 @@ for name,ds_ in scamat.groupby('name'):
         plt.suptitle(name+' '+rh)
 
         cb = fig.colorbar(sm, ax=axs, shrink=0.6, aspect=30, pad=0.1, location='bottom')
-        cb.set_label('$Wavelength\ (\mu m)$', fontsize=22)
+        cb.set_label(r'$Wavelength\ (\mu m)$', fontsize=22)
         plt.savefig(opj('./fig/OPAC_types',name+'_'+rh+'_scatmat.png'),dpi=300)
         plt.close()
         plt.show()
@@ -118,12 +118,12 @@ for name, ds_ in scamat.groupby('name'):
             axs[1].plot(ds.wl, ds.ext / Cext_550, 'o-', color=colors[name], label=name)
             axs[2].plot(ds.wl, ds.ssa, 'o-', color=colors[name], label=name)
 for i in range(3):
-    axs[i].set_xlabel('$Wavelength\ (\mu m)$')
+    axs[i].set_xlabel(r'$Wavelength\ (\mu m)$')
     axs[i].legend(fontsize=11)
 if suff == '_norm':
     ylabel='$C_{ext}/C_{ext}(550nm)$'
 else:
-    ylabel='$C_{ext}\ (\mu m^2)$'
+    ylabel=r'$C_{ext}\ (\mu m^2)$'
 axs[0].set_ylabel(ylabel)
 axs[1].set_ylabel(ylabel)
 
@@ -160,7 +160,7 @@ for name,ds_ in scamat.groupby('name'):
         axs[1].plot(ds.wl,ds.ext,'o-',color=cmap(norm(irh)),label=rel_hum)
         axs[2].plot(ds.wl,ds.ssa,'o-',color=cmap(norm(irh)),label=rel_hum)
     for i in range(3):
-        axs[i].set_xlabel('$Wavelength\ (\mu m)$')
+        axs[i].set_xlabel(r'$Wavelength\ (\mu m)$')
         axs[i].legend(title='Rel. humidity',fontsize=11)
     axs[0].set_ylabel('$C_{ext}$')
     axs[1].set_ylabel('$C_{ext}$')
@@ -200,7 +200,7 @@ for name,ds in scamat_.groupby('name'):
 
 
     for i in range(4):
-        axs[i].set_xlabel('$Scattering\ angle\ (deg)$')
+        axs[i].set_xlabel(r'$Scattering\ angle\ (deg)$')
     axs[0].semilogy()
     axs[0].legend(title='Rel. humidity',fontsize=11)
     axs[0].set_ylabel('$F_{11}$')
@@ -249,7 +249,7 @@ for itype,(name,ds) in enumerate(scamat_.groupby('name')):
 
 
 for i in range(4):
-    axs[i].set_xlabel('$Scattering\ angle\ (deg)$')
+    axs[i].set_xlabel(r'$Scattering\ angle\ (deg)$')
 axs[0].semilogy()
 axs[0].legend(title='OPAC types',fontsize=11)
 axs[0].set_ylabel('$F_{11}$')

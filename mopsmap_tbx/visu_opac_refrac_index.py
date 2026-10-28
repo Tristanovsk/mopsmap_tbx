@@ -41,7 +41,7 @@ wl_common = np.linspace(0.35,2.5,150)
 for material in materials:
     file = opj(refrac_dir,'refr_'+material)
     print(file)
-    refrac = pd.read_csv(file,sep='\s+',names=['wl','mr','mi'],index_col=0).to_xarray()
+    refrac = pd.read_csv(file,sep=r'\s+',names=['wl','mr','mi'],index_col=0).to_xarray()
     print(material,float(refrac.mr.interp(wl=0.5)),float(refrac.mi.interp(wl=0.5)))
 
     color=colors[material]
@@ -65,7 +65,7 @@ axs[1].set_ylabel('$m_i$')
 
 
 for i in range (2):
-    axs[i].set_xlabel('$Wavelength\ (\mu m)$')
+    axs[i].set_xlabel(r'$Wavelength\ (\mu m)$')
     axs[i].minorticks_on()
 plt.show()
 

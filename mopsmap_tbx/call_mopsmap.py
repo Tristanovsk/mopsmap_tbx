@@ -7,21 +7,38 @@ path_optical_dataset = '../optical_dataset/'
 path_mopsmap_executable = '../mopsmap'
 
 
-# Interface for (multi-modal) log-normal distributions
-
-# Input parameters:
-# wvl: wavelength (a single number or a list of numbers)
-# size_equ: size equivalence 
-# n,r_mod,sigma: parameters of log-normal size modes (single parameter each or lists with same lengths describing the parameters of each mode)
-# r_min,r_max: minimum and maximum radii (if single parameter it is applied to all modes, otherwise if list it is applied to each mode)
-# m: refractive index, given as a string which is added in input file after 'refrac' (if single string it is applied to all modes, otherwise if list it is applied to each mode)
-# nonabs_fraction: ratio of non-absorbing particles (if single parameter it is applied to all modes, otherwise if list it is applied to each mode)
-# shape: particle shape, given as a string which is added in input file after 'shape' (if single string it is applied to all modes, otherwise if list it is applied to each mode)
-# num_theta: number of scattering angles in output
-
-# The results are returned as a dictionary with the keywords as listed near the end of this file
-
 def call_mopsmap(wvl, size_equ, n, r_mod, sigma, r_min, r_max, m, nonabs_fraction, shape, num_theta):
+    """Run MOPSMAP for (multi-modal) log-normal size distributions.
+
+    Writes the input files ``tmp_mopsmap.inp`` and ``tmp_mopsmap.wvl`` in the
+    current directory and runs the executable ``path_mopsmap_executable``
+    with the optical dataset ``path_optical_dataset`` (module variables to
+    adjust to your installation). Results are written by MOPSMAP to the
+    ASCII files ``tmp_mopsmap.*``.
+
+    Parameters
+    ----------
+    wvl : float or list of float
+        Wavelength(s).
+    size_equ : str
+        Size equivalence.
+    n, r_mod, sigma : float or list of float
+        Parameters of the log-normal size modes (lists of same length, one
+        value per mode).
+    r_min, r_max : float or list of float
+        Minimum and maximum radii, applied to all modes if a single value.
+    m : str or list of str
+        Refractive index, added in the input file after ``refrac``; applied
+        to all modes if a single string.
+    nonabs_fraction : float or list of float
+        Ratio of non-absorbing particles; applied to all modes if a single
+        value.
+    shape : str or list of str
+        Particle shape, added in the input file after ``shape``; applied to
+        all modes if a single string.
+    num_theta : int
+        Number of scattering angles in output.
+    """
     # create a input file for the Fortran code and a wavelength file
     mopsmap_input_file = open('tmp_mopsmap.inp', 'w')
     mopsmap_wvl_file = open('tmp_mopsmap.wvl', 'w')
@@ -43,9 +60,7 @@ def call_mopsmap(wvl, size_equ, n, r_mod, sigma, r_min, r_max, m, nonabs_fractio
     r_min = np.array(r_min, ndmin=1)
     r_max = np.array(r_max, ndmin=1)
     if n.shape != r_mod.shape or n.shape != sigma.shape:
-        print()
-        "shapes of n, r_mod, and sigma do not agree"
-        raise SystemExit()
+        raise ValueError("shapes of n, r_mod, and sigma do not agree")
     if n.shape[0] > 1 and r_min.shape[0] == 1:
         r_min = np.resize(r_min, n.shape[0])
         r_min[:] = r_min[0]

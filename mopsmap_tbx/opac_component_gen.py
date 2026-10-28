@@ -1,106 +1,52 @@
-import os, sys
-import glob
-import numpy as np
-import pandas as pd
-import xarray as xr
-import subprocess
+"""Scattering matrices of the OPAC components for several relative humidities.
 
-# ----------------------------
-# set plotting styles
-import matplotlib.pyplot as plt
-import matplotlib as mpl
+Run from the command line: ``python -m mopsmap_tbx.opac_component_gen``
+"""
 
-plt.ioff()
-rc = {"font.family": "serif",
-      "mathtext.fontset": "stix"}
-plt.rcParams.update(rc)
-plt.rcParams["font.serif"] = ["Times New Roman"] + plt.rcParams["font.serif"]
-plt.rcParams.update({'font.size': 16, 'axes.labelsize': 18})
+import os
+
+import dask
+
+from mopsmap_tbx.opac_mopsmap import (MOPSMAP_DATA, RHS, SCATMAT_DIR, compute_tasks,
+                                      input_info, load_components, run_mopsmap)
+
 opj = os.path.join
 
-mopsmap_dir = '/sat_data/vrtc/aerosol/mopsmap'
-mopsmap_exe = opj(mopsmap_dir, 'mopsmap')
-components = pd.read_csv('./data/opac_aerosol_components.csv', skiprows=1, index_col=[1])
-components['logS'] = np.log(components.sigma)
 
-datapath = opj(mopsmap_dir, 'data')
+@dask.delayed
+def component_task(name, c, rh, ofile):
+    """Run MOPSMAP for component `name` at relative humidity `rh`.
 
-input_file = './input.txt'
-
-
-# -- Write scattering angle file
-# ang = np.concatenate([[0,0.001,0.005,0.01,0.05,0.1,0.2,0.3,0.4],np.arange(0.5,180.1,0.5)])
-# pd.DataFrame(ang).to_csv(opj(datapath,'scat_angle_grid.txt'),index=False)
-
-class input_info:
-    def __init__(self, output_file='test.nc', dataroot=''):
-        self.dataroot = dataroot
-        self.output_file = output_file
-
-    def write_mode(self, imode, rmed_N, sigma,
-                   Nparticle=1, r_min=1e-3, r_max=60,
-                   refra_file='refr_water_soluble',
-                   shape='sphere',
-                   kappa=0):
-        mode = 'mode %d size log_normal %f %f %f %f %f\n' % (
-            imode, rmed_N, sigma, Nparticle, r_min, r_max)
-        mode += 'mode %d refrac file "%s"\n' % (imode, opj(self.dataroot, refra_file))
-        mode += 'mode %d shape %s\n' % (imode, shape)
-        mode += 'mode %d kappa %s\n' % (imode, kappa)
-        return mode
-
-    def write_info(self,
-                   rel_humidity=0,
-                   water_refrac_file="refr_water_segelstein",
-                   wavelength='range 0.4 2.4 0.1',
-                   theta_file='scat_angle_grid.txt',
-                   scatlib='optical_dataset'):
-        info = 'size_equ cs\n'
-        info += 'rH %d\n' % rel_humidity
-        info += 'water_refrac_file "%s"\n' % opj(self.dataroot, water_refrac_file)
-        info += 'wavelength %s\n' % wavelength
-        info += 'output theta_file "%s"\n' % opj(self.dataroot, theta_file)
-        info += 'scatlib "%s"\n' % opj(self.dataroot, scatlib)
-        info += 'output netcdf "%s" reff\n' % self.output_file
-        return info
+    MOPSMAP fails when the size parameter exceeds its optical dataset, so
+    `rmax` is decreased down to 11 until it succeeds (single try if
+    `rmax` <= 10). Returns the output file, or None if every run failed.
+    """
+    info = input_info(output_file=ofile, dataroot=MOPSMAP_DATA)
+    for rmax in range(c['rmax'], min(10, c['rmax'] - 1), -1):
+        input = info.write_component(1, c, r_max=rmax)
+        input += info.write_info(rel_humidity=rh)
+        log = run_mopsmap(input)
+        if 'Error' not in log:
+            return ofile
+    print('MOPSMAP failed for', name, rh, ':', log)
+    return None
 
 
-rhs = [0, 50, 70, 80, 90, 95, 98, 99]
-for name, c in components.iterrows():
-    print(name)
-
-    kappa = c['kappa']
-    for rh in rhs:
-
-        ofile = opj('./scatmat', 'components', name + '_rh{:d}_scatmat.nc'.format(rh))
-        for rmax in range(c['rmax'],10,-1):
-            print(rmax)
-            if os.path.exists(ofile):
-                break
-
-            info = input_info(output_file=ofile, dataroot=datapath)
-
+def main(rhs=RHS, odir=opj(SCATMAT_DIR, 'components'), num_workers=None):
+    components = load_components()
+    os.makedirs(odir, exist_ok=True)
+    tasks = []
+    for name, c in components.iterrows():
+        for rh in rhs:
             # if hygrophobic compute for rh=0 only
-            if kappa == 0 and rh > 0:
+            if c['kappa'] == 0 and rh > 0:
                 continue
+            ofile = opj(odir, name + '_rh{:d}_scatmat.nc'.format(rh))
+            if os.path.exists(ofile):
+                continue
+            tasks.append(component_task(name, c, rh, ofile))
+    return compute_tasks(tasks, num_workers=num_workers)
 
-            if c['shape'] == 'sphere':
-                input = info.write_mode(1, c.rmed_N, c.sigma, shape='sphere', kappa=kappa, r_max=rmax,
-                                        refra_file=c.refrac_index_file)
-            elif c['shape'] == 'spheroid':
-                input = info.write_mode(1, c.rmed_N, c.sigma,
-                                        shape='spheroid distr_file "' + opj(datapath, 'ar_kandler') + '"', kappa=kappa,
-                                        r_max=rmax, refra_file=c.refrac_index_file)
 
-            input += info.write_info(rel_humidity=rh)
-
-            # call mopsmap
-            input_file = '/media/harmel/vol1/Dropbox/work/git/vrtc/mopsmap_tbx/input.txt'
-            with open(input_file, 'w') as w:
-                w.write(input)
-
-            p = subprocess.Popen(mopsmap_exe + ' ' + input_file, stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
-                                 close_fds=True, shell=True)
-            res=p.communicate()
-            if not 'Error' in str(res[0]):
-                break
+if __name__ == '__main__':
+    main()

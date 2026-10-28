@@ -1,0 +1,25 @@
+[build-system]
+requires = ["setuptools>=64", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "mopsmap_tbx"
+dynamic = ["version"]
+description = "Snippets for scattering matrix and optical parameters computation based on MOPSMAP"
+readme = "README.md"
+authors = [{ name = "T. Harmel", email = "tristan.harmel@gmail.com" }]
+requires-python = ">=3.8"
+dependencies = [
+    "numpy",
+    "pandas",
+    "xarray",
+    "netCDF4",
+    "dask",
+    "matplotlib",
+]
+
+[tool.setuptools.dynamic]
+version = { attr = "mopsmap_tbx.__version__" }
+
+[tool.setuptools.packages.find]
+include = ["mopsmap_tbx*"]

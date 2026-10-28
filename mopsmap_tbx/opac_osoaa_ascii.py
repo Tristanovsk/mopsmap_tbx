@@ -33,7 +33,7 @@ for file in glob.glob('./scatmat/types/*.nc'):
     ds = ds.rename({'wavelen': 'wl'}).rename({'nlam': 'wl', 'nphamat': 'scamat', 'nthetamax': 'angle'}).set_coords(
         ['wl'])
     scaang = ds.theta.isel(wl=0, scamat=0).squeeze().values
-    ds = ds.assign_coords({'angle': scaang}).drop('theta')
+    ds = ds.assign_coords({'angle': scaang}).drop_vars('theta')
     ds = ds.squeeze()
     # put angle in increasing order
     ds = ds.isel(angle=slice(None, None, -1))
@@ -48,7 +48,6 @@ for file in glob.glob('./scatmat/types/*.nc'):
             continue
         print(wl_, ofile)
         S11 = ds_.phase.isel(scamat=0)
-        np.trapz(S11 * np.sin(theta), theta) / 2
         minusS12 = -ds_.phase.isel(scamat=1) / S11
         S22 = ds_.phase.isel(scamat=4) / S11
         S33 = ds_.phase.isel(scamat=2) / S11
