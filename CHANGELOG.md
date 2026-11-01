@@ -26,6 +26,14 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   Sentinel-3/OLCI bands. MOPSMAP is used at its dataset nodes (1.04 to 1.20) and
   exact Mie (`miepython`, Dask processes scheduler) at 1.02, with a Mie vs MOPSMAP
   cross-check at 1.04.
+- Notebook `notebook/sensitivity_nonspherical_particles.ipynb` (also in the
+  docs): effect of non-sphericity on the efficiency factors, backscattering
+  ratio, asymmetry parameter, depolarization ratio and scattering matrix of
+  marine particles, with MOPSMAP randomly oriented spheroids (oblate and prolate,
+  aspect ratios 1.2, 2, 3, and a log-normal aspect-ratio mixture) compared with
+  spheres, for m_r = 1.04 to 1.20 and cross-section-equivalent radii <= 40 µm.
+  Spheroids with an aspect ratio of 1.2 serve as near-spherical reference to
+  separate the shape effect from the T-matrix/geometric-optics vs Mie methods.
 - `compute_tasks(progress=False)` to disable the progress bar.
 
 ### Changed
