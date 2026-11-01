@@ -17,6 +17,16 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   `compute_tasks`). The MOPSMAP installation is set with the `MOPSMAP_DIR`
   environment variable.
 - NumPy-style docstring for `call_mopsmap`.
+- Notebook `notebook/sensitivity_marine_particles.ipynb` (also in the docs):
+  sensitivity of the efficiency factors, single scattering albedo, asymmetry
+  parameter, backscattering ratio and scattering matrix of marine particles
+  (spheres, refractive index relative to seawater) to the real part of the
+  refractive index (1.02 to 1.20), four spectral shapes of the imaginary part and
+  eight power-law and log-normal size distributions (r <= 40 µm), at the
+  Sentinel-3/OLCI bands. MOPSMAP is used at its dataset nodes (1.04 to 1.20) and
+  exact Mie (`miepython`, Dask processes scheduler) at 1.02, with a Mie vs MOPSMAP
+  cross-check at 1.04.
+- `compute_tasks(progress=False)` to disable the progress bar.
 
 ### Changed
 

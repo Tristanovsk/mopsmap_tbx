@@ -105,12 +105,14 @@ def run_mopsmap(input_text, mopsmap_exe=MOPSMAP_EXE):
     return res.stdout
 
 
-def compute_tasks(tasks, num_workers=None):
-    """Compute a list of :func:`dask.delayed` tasks with a progress bar.
+def compute_tasks(tasks, num_workers=None, progress=True):
+    """Compute a list of :func:`dask.delayed` tasks, with a progress bar if `progress`.
 
     MOPSMAP runs in a subprocess and the GIL is released while waiting for
     it, so the threaded scheduler is enough to run `num_workers` MOPSMAP
     instances at a time (default: number of CPUs).
     """
+    if not progress:
+        return dask.compute(*tasks, scheduler='threads', num_workers=num_workers)
     with ProgressBar():
         return dask.compute(*tasks, scheduler='threads', num_workers=num_workers)

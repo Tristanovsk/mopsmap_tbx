@@ -18,6 +18,7 @@ mopsmap_tbx documentation
    tutorials/opac_generator
    tutorials/plotting_output
    tutorials/plotting_output_radcalnet
+   tutorials/sensitivity_marine_particles
 
 .. toctree::
    :maxdepth: 3

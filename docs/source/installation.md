@@ -21,6 +21,13 @@ cd mopsmap_tbx
 pip install -e .
 ```
 
+The notebook `notebook/sensitivity_marine_particles.ipynb` also needs
+[miepython](https://github.com/scottprahl/miepython) for the exact Mie computations:
+
+```bash
+pip install miepython
+```
+
 ## Building the documentation
 
 ```bash
