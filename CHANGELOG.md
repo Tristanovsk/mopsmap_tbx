@@ -41,6 +41,13 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   three-layer particles with a silica- or calcite-like outer wall, compared
   with homogeneous spheres of volume-averaged refractive index, for
   non-absorbing particles and pigments confined to the chloroplast layer.
+- Notebook `notebook/sensitivity_core_particles.ipynb` (also in the docs):
+  marine particles with a dense core mimicking the nucleus or other organelles
+  (m = 1.04 to 1.20, 5 to 25 % of the volume) in a cytoplasm of m = 1.02, and
+  three-layer cells with an organelle core, cytoplasm and chloroplast layer,
+  compared with homogeneous spheres of volume-averaged refractive index.
+- Multilayer notebooks limit BLAS to one thread per worker process, which
+  avoids stalled computations on many-core machines.
 - `compute_tasks(progress=False)` to disable the progress bar.
 
 ### Changed

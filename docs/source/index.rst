@@ -21,6 +21,7 @@ mopsmap_tbx documentation
    tutorials/sensitivity_marine_particles
    tutorials/sensitivity_nonspherical_particles
    tutorials/sensitivity_multilayer_particles
+   tutorials/sensitivity_core_particles
 
 .. toctree::
    :maxdepth: 3
