@@ -34,6 +34,13 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   spheres, for m_r = 1.04 to 1.20 and cross-section-equivalent radii <= 40 µm.
   Spheroids with an aspect ratio of 1.2 serve as near-spherical reference to
   separate the shape effect from the T-matrix/geometric-optics vs Mie methods.
+- Notebook `notebook/sensitivity_multilayer_particles.ipynb` (also in the
+  docs): optical properties of multilayered marine particles with exact
+  multilayer Mie theory (`scattnlay`): two-layer particles (core m = 1.02 and
+  chloroplast-like shell of m = 1.06 to 1.20 and 10 to 50 % of the volume) and
+  three-layer particles with a silica- or calcite-like outer wall, compared
+  with homogeneous spheres of volume-averaged refractive index, for
+  non-absorbing particles and pigments confined to the chloroplast layer.
 - `compute_tasks(progress=False)` to disable the progress bar.
 
 ### Changed

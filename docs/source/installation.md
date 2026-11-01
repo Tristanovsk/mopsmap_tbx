@@ -28,6 +28,19 @@ The notebook `notebook/sensitivity_marine_particles.ipynb` also needs
 pip install miepython
 ```
 
+The notebook `notebook/sensitivity_multilayer_particles.ipynb` needs
+[scattnlay](https://github.com/ovidiopr/scattnlay) (GPL-3.0) for the multilayer
+Mie computations:
+
+```bash
+pip install scattnlay
+```
+
+In an Anaconda environment, its import can fail with `GLIBCXX_3.4.32 not found`
+when the extension is compiled with a newer compiler than the C++ runtime of the
+environment: update the runtime (`conda install -c conda-forge "libstdcxx-ng>=13"`)
+or start Jupyter with `LD_PRELOAD=/usr/lib/x86_64-linux-gnu/libstdc++.so.6`.
+
 ## Building the documentation
 
 ```bash
