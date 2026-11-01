@@ -22,6 +22,7 @@ mopsmap_tbx documentation
    tutorials/sensitivity_nonspherical_particles
    tutorials/sensitivity_multilayer_particles
    tutorials/sensitivity_core_particles
+   tutorials/sensitivity_number_of_layers
 
 .. toctree::
    :maxdepth: 3

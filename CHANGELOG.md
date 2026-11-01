@@ -48,6 +48,12 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   chloroplast layer, silica- or calcite-like wall) separating the effects of
   the core and of the wall, compared with homogeneous spheres of
   volume-averaged refractive index.
+- Notebook `notebook/sensitivity_number_of_layers.ipynb` (also in the docs):
+  convergence of phytoplankton cell models from 1 to 15 concentric layers,
+  obtained by merging a reference cell (cellulose theca, silica frustule or
+  calcite coccolith wall, lipid bilayer membranes, chloroplast with
+  thylakoids, cytoplasm, nuclear envelope, nucleus and nucleolus) with
+  volume-averaged refractive indices.
 - Multilayer notebooks limit BLAS to one thread per worker process, which
   avoids stalled computations on many-core machines.
 - `compute_tasks(progress=False)` to disable the progress bar.
